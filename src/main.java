@@ -11,12 +11,14 @@ public class main {
         Greedy_TSPHS g = new Greedy_TSPHS(T1);
         g.newInit();
         g.solveTSP();
-        g.printPath();
+        g.printTSPPath();
         System.out.println();
+        g.solveTSPHS();
+        //System.out.println();
 
         // draw the map and path
         drawMap drawMap = new drawMap(T1, g.getPATH());
         drawMap.setMap();
-        System.out.println();
+        //System.out.println();
     }
 }

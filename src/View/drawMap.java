@@ -9,15 +9,15 @@ public class drawMap extends JPanel {
     public JFrame frame;
     public TspMap TMap;
 
-    private List<String> PATH;
+    private List<Integer> PATH;
 
     /*public static void main(String[] args) {
         drawMap drawMap = new drawMap();
         drawMap.go();
     }*/
-    public drawMap(TspMap TMap, List<String> path) {
+    public drawMap(TspMap TMap, List<Integer> path) {
         this.TMap = TMap;
-        this.PATH = new LinkedList<String>();
+        this.PATH = new LinkedList<Integer>();
         this.PATH = path;
     }
 
@@ -54,7 +54,7 @@ public class drawMap extends JPanel {
         g.drawLine(0, 0, 800, 0);
 
         for (int i = 0; i < PATH.size() - 2; i++) {
-            int index = Integer.parseInt(PATH.get(i));
+            int index = PATH.get(i);
             g.drawLine(TMap.getInitialCustomer().get(index).getX() * 10, TMap.getInitialCustomer().get(index).getY() * 10,
                     TMap.getInitialCustomer().get(index + 1).getX() * 10, TMap.getInitialCustomer().get(index + 1).getY() * 10);
         }

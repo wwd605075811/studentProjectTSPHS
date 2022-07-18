@@ -24,8 +24,8 @@ public class TspMap {
     private int Size;
     private List<Customer> initialCustomer;
     private double [][] distanceCustomer;
+    private double [][] distanceCustomer2Hotel;
     private double [] minDistanceC2H; // the min distance from each customer to hotel
-
     private int [] minDistanceIndexC2H;
     private double [][] timeMatrix;
     // 整个行程tour, 要记得初始化Queue<Trip> tour = new LinkedList<Trip>();
@@ -39,9 +39,14 @@ public class TspMap {
     //         c4 to h1 = 8.06225774829855
     //         total trip = 63.247747073566515
     //假设一天送4~5个客户，行驶距离63，无法达到下一位72距离的客户再住店，故设置车辆speed为10，服务时间为0；
-    private static int speed = 10;
-    private static int T = speed * 8;
-    private static int serviceHours = 0;
+    private static double speed = 10;
+    private double T = speed * 14;
+    private static double serviceHours = 0;
+
+    public double getT() {
+        return T;
+    }
+
     String dataPath;
     /**
      * 读入文件的初始化函数，载入所有的酒店，顾客，形成初始的距离矩阵以及时间矩阵
@@ -54,6 +59,7 @@ public class TspMap {
         this.dataPath = dataPath;
         this.Size = hotelSize + customerSize;
         this.distanceCustomer = new double[customerSize][customerSize];
+        this.distanceCustomer2Hotel = new double[customerSize][hotelSize];
         this.minDistanceC2H = new double[customerSize];
         this.minDistanceIndexC2H = new int[customerSize];
     }
@@ -106,6 +112,12 @@ public class TspMap {
         }
         distanceCustomer[customerSize - 1][customerSize - 1] = 0;
 
+        // calculate the distance matrix from customers to hotel
+        for (int i = 0; i < customerSize; i++) {
+            for (int j = 0; j < hotelSize; j++) {
+                distanceCustomer2Hotel[i][j] = calculateDistance(initialCustomer.get(i),initialHotel.get(j));
+            }
+        }
         double min = 999999;
         int indexOfHotel = -1;
         // calculate the distance matrix from customers to hotels
@@ -188,5 +200,8 @@ public class TspMap {
 
     public int[] getMinDistanceIndexC2H() {
         return minDistanceIndexC2H;
+    }
+    public double[][] getDistanceCustomer2Hotel() {
+        return distanceCustomer2Hotel;
     }
 }

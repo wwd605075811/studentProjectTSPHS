@@ -1,5 +1,6 @@
 package algorithm;
 
+import model.Trip;
 import model.TspMap;
 
 import java.util.LinkedList;
@@ -10,17 +11,19 @@ public class Greedy_TSPHS {
     private double[][] distanceCustomer; // customer distance Matrix
     private int[] colAble; // 0 means we have passed this customer
     private int[] rowAble; // 0 means we have passed this customer
-    private List<String> PATH; // the final path
+    private List<Integer> PATH; // the final path
     private double totalDistance = 0.0; // the cost of algorithm
-
     private TspMap tspMap;
-
+    Trip trip;
+    int customerIndex;
+    List<Trip> tour;
 
     public Greedy_TSPHS(TspMap TMap) {
         this.tspMap = TMap;
         this.customerSize = TMap.getCustomerSize();
         this.distanceCustomer = TMap.getDistanceCustomer();
-        this.PATH = new LinkedList<String>();
+        this.PATH = new LinkedList<Integer>();
+        this.customerIndex = 0;
     }
     public void newInit() {
         colAble = new int[customerSize];
@@ -33,15 +36,13 @@ public class Greedy_TSPHS {
             rowAble[i] = 1;
         }
     }
-
     public double EUC_2D_dist(int x1, int x2, int y1, int y2) {
         return Math.sqrt(((x1 - x2) * (x1 - x2) + (y1 - y2)	* (y1 - y2)));
     }
-
     public void solveTSP() {
         double[] temp = new double[customerSize];
         String path = "0";
-        PATH.add("0");
+        PATH.add(0);
 
         double s = 0;   //计算距离
         int i = 0;  //当前节点
@@ -61,7 +62,7 @@ public class Greedy_TSPHS {
             colAble[j] = 0;//列0，表示已经走过
 
             path += "-->" + j;
-            PATH.add(Integer.toString(j));
+            PATH.add(j);
             //System.out.println(i + "-->" + j);
             //System.out.println(distance[i][j]);
             s = s + distanceCustomer[i][j];
@@ -98,8 +99,7 @@ public class Greedy_TSPHS {
         }
         return k;
     }
-
-    public void printPath() {
+    public void printTSPPath() {
         System.out.println("The path of Greedy_TSP is:");
         for (int i = 0; i < PATH.size(); i++) {
             System.out.print(PATH.get(i) + "--");
@@ -107,13 +107,91 @@ public class Greedy_TSPHS {
         System.out.println("\b\b");
         System.out.println("The distance of Greedy_TSP is:" + totalDistance);
     }
-
-    public List<String> getPATH() {
+    public List<Integer> getPATH() {
         return PATH;
     }
+    public Trip findTrip(int firstHotel, int firstCustomer) {
 
-    public void solveTSPHS () {
+        // there are only one customer in the Path
 
+
+        // trip 的初始酒店和初始顾客
+        trip = new Trip();
+        // insert first hotel and customer
+        double cost = 0.0;
+        trip.trip.add(firstHotel);
+        trip.trip.add(PATH.get(this.customerIndex));
+
+        // check the cost
+        cost = cost + tspMap.getDistanceCustomer2Hotel()[PATH.get(this.customerIndex)][firstHotel];
+        System.out.println("first hotel and customer are:" + firstHotel + "  " + PATH.get(this.customerIndex) + " now, the cost is: " + cost);
+        // insert the customer one by one
+        int tripIndex = 1;
+        while (cost <= tspMap.getT()) {
+            // if the customer is over
+           /* if(this.customerIndex == customerSize - 1) {
+                break;
+            }*/
+
+            this.customerIndex ++;
+            //insert customer
+            trip.trip.add(PATH.get(this.customerIndex));
+            cost = cost + tspMap.getDistanceCustomer()[this.customerIndex-1][this.customerIndex];
+            tripIndex ++;
+
+        }
+
+        System.out.print("After insert customers: ");
+        for (int i = 0; i < trip.trip.size(); i++) {
+            System.out.print(trip.trip.get(i) + " ");
+        }
+        System.out.println("  the cost is: " + cost);
+
+        while (this.customerIndex != 0) {
+            trip.trip.remove(tripIndex);
+            cost = cost - tspMap.getDistanceCustomer()[this.customerIndex-1][this.customerIndex];
+            tripIndex --;
+            this.customerIndex --;
+
+            System.out.print("After delete customer: ");
+            for (int i = 0; i < trip.trip.size(); i++) {
+                System.out.print(trip.trip.get(i) + " ");
+            }
+            System.out.println("  the cost is: " + cost + "  extra distance: " + tspMap.getMinDistanceC2H()[PATH.get(this.customerIndex)]);
+
+            if (cost + tspMap.getMinDistanceC2H()[PATH.get(this.customerIndex)] <= tspMap.getT()) {
+                // over
+                trip.trip.add(tspMap.getMinDistanceIndexC2H()[PATH.get(this.customerIndex)]);
+                cost = cost + tspMap.getMinDistanceC2H()[PATH.get(this.customerIndex)];
+                tripIndex ++;
+
+                System.out.print("After insert hotel: ");
+                for (int i = 0; i < trip.trip.size(); i++) {
+                    System.out.print(trip.trip.get(i) + " ");
+                }
+                System.out.println("  the cost is: " + cost);
+                System.out.println();
+                return trip;
+            }
+        }
+        System.out.println("There is no suitable hotel");
+        return null;
+    }
+
+    public void solveTSPHS() {
+        this.tour = new LinkedList<Trip>();
+        if (this.customerIndex == 0) {
+            tour.add(findTrip(tspMap.getMinDistanceIndexC2H()[PATH.get(0)],this.customerIndex));
+            System.out.println();
+        }
+        while(this.customerIndex < PATH.size() - 1) {
+            System.out.println();
+            this.customerIndex ++;
+            System.out.println();
+            tour.add(findTrip(tour.get(tour.size() - 1).getLastHotel(),this.customerIndex));
+
+        }
+        System.out.println();
     }
 
 }
