@@ -28,6 +28,8 @@ public class TspMap {
     private double [] minDistanceC2H; // the min distance from each customer to hotel
     private int [] minDistanceIndexC2H;
     private double [][] timeMatrix;
+
+
     // 整个行程tour, 要记得初始化Queue<Trip> tour = new LinkedList<Trip>();
     List<Trip> tour;
 
@@ -40,7 +42,7 @@ public class TspMap {
     //         total trip = 63.247747073566515
     //假设一天送4~5个客户，行驶距离63，无法达到下一位72距离的客户再住店，故设置车辆speed为10，服务时间为0；
     private static double speed = 10;
-    private double T = speed * 14;
+    private double T = speed * 8;
     private static double serviceHours = 0;
 
     public double getT() {
@@ -203,5 +205,13 @@ public class TspMap {
     }
     public double[][] getDistanceCustomer2Hotel() {
         return distanceCustomer2Hotel;
+    }
+
+    public List<Trip> getTour() {
+        return tour;
+    }
+
+    public void setTour(List<Trip> tour) {
+        this.tour = tour;
     }
 }

@@ -112,9 +112,6 @@ public class Greedy_TSPHS {
     }
     public Trip findTrip(int firstHotel, int firstCustomer) {
 
-        // there are only one customer in the Path
-
-
         // trip 的初始酒店和初始顾客
         trip = new Trip();
         // insert first hotel and customer
@@ -125,14 +122,9 @@ public class Greedy_TSPHS {
         // check the cost
         cost = cost + tspMap.getDistanceCustomer2Hotel()[PATH.get(this.customerIndex)][firstHotel];
         System.out.println("first hotel and customer are:" + firstHotel + "  " + PATH.get(this.customerIndex) + " now, the cost is: " + cost);
-        // insert the customer one by one
+        // insert the customer one by one,
         int tripIndex = 1;
-        while (cost <= tspMap.getT()) {
-            // if the customer is over
-           /* if(this.customerIndex == customerSize - 1) {
-                break;
-            }*/
-
+        while (cost <= tspMap.getT() && this.customerIndex < customerSize - 1) {
             this.customerIndex ++;
             //insert customer
             trip.trip.add(PATH.get(this.customerIndex));
@@ -140,7 +132,7 @@ public class Greedy_TSPHS {
             tripIndex ++;
 
         }
-
+        // 只剩下返回最后的一段路！
         System.out.print("After insert customers: ");
         for (int i = 0; i < trip.trip.size(); i++) {
             System.out.print(trip.trip.get(i) + " ");
@@ -148,6 +140,35 @@ public class Greedy_TSPHS {
         System.out.println("  the cost is: " + cost);
 
         while (this.customerIndex != 0) {
+            // 当最后一个顾客被插入序列时，有两种情况：
+            // 加入后未超时（1. 再返回酒店超时； 2. 返回酒店不超时）
+            // 加入后超时，按正常流程走
+            if (this.customerIndex == customerSize - 1) {
+                System.out.println("time for last customer!");
+                if (cost >= tspMap.getT()) { // 超时
+                    break;
+                } else { // 未超时
+                    // 1.寻找初始酒店
+                    // 2. 加入初始酒店判断距离是否超时
+                    int initialHotel = tspMap.getMinDistanceIndexC2H()[0];
+                    double distance = tspMap.getDistanceCustomer2Hotel()[this.customerIndex][tspMap.getMinDistanceIndexC2H()[0]];
+                    if (cost + distance < tspMap.getT()) {
+                        //System.out.println("*****" + cost + distance);
+                        trip.trip.add(initialHotel);
+                        cost = cost + distance;
+
+                        System.out.print("After insert hotel: ");
+                        for (int i = 0; i < trip.trip.size(); i++) {
+                            System.out.print(trip.trip.get(i) + " ");
+                        }
+                        System.out.println("  the cost is: " + cost);
+                        return trip;
+                    } else {
+                        System.out.println("*****~~~~~~" + cost + distance);
+                    }
+                }
+            }
+
             trip.trip.remove(tripIndex);
             cost = cost - tspMap.getDistanceCustomer()[this.customerIndex-1][this.customerIndex];
             tripIndex --;
@@ -170,7 +191,6 @@ public class Greedy_TSPHS {
                     System.out.print(trip.trip.get(i) + " ");
                 }
                 System.out.println("  the cost is: " + cost);
-                System.out.println();
                 return trip;
             }
         }
@@ -182,15 +202,13 @@ public class Greedy_TSPHS {
         this.tour = new LinkedList<Trip>();
         if (this.customerIndex == 0) {
             tour.add(findTrip(tspMap.getMinDistanceIndexC2H()[PATH.get(0)],this.customerIndex));
-            System.out.println();
         }
-        while(this.customerIndex < PATH.size() - 1) {
-            System.out.println();
+        while(this.customerIndex < customerSize - 1) {
+            System.out.println("-----------------------------------------------");
             this.customerIndex ++;
-            System.out.println();
             tour.add(findTrip(tour.get(tour.size() - 1).getLastHotel(),this.customerIndex));
-
         }
+        tspMap.setTour(tour);
         System.out.println();
     }
 
