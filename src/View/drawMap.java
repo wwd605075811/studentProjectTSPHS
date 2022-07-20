@@ -49,18 +49,18 @@ public class drawMap extends JPanel {
             g.fillOval(tspMap.getInitialHotel().get(i).getX() * 10, tspMap.getInitialHotel().get(i).getY() * 10, 10, 10);
         }
         // draw the X and Y
-        g.setColor(Color.black);
+        g.setColor(Color.red);
         g.drawLine(0, 0, 0, 800);
         g.drawLine(0, 0, 800, 0);
 
-        // draw the tsp path
-        /*for (int i = 0; i < PATH.size() - 2; i++) {
+        /*// draw the tsp path
+        for (int i = 0; i < PATH.size() - 2; i++) {
             int index = PATH.get(i);
-            g.drawLine(TMap.getInitialCustomer().get(index).getX() * 10, TMap.getInitialCustomer().get(index).getY() * 10,
-                    TMap.getInitialCustomer().get(index + 1).getX() * 10, TMap.getInitialCustomer().get(index + 1).getY() * 10);
+            g.drawLine(tspMap.getInitialCustomer().get(index).getX() * 10, tspMap.getInitialCustomer().get(index).getY() * 10,
+                    tspMap.getInitialCustomer().get(index + 1).getX() * 10, tspMap.getInitialCustomer().get(index + 1).getY() * 10);
         }
-        g.drawLine(TMap.getInitialCustomer().get(PATH.size() - 2).getX() * 10, TMap.getInitialCustomer().get(PATH.size() - 2).getY() * 10,
-                TMap.getInitialCustomer().get(0).getX() * 10, TMap.getInitialCustomer().get(0).getY() * 10);*/
+        g.drawLine(tspMap.getInitialCustomer().get(PATH.size() - 2).getX() * 10, tspMap.getInitialCustomer().get(PATH.size() - 2).getY() * 10,
+                tspMap.getInitialCustomer().get(0).getX() * 10, tspMap.getInitialCustomer().get(0).getY() * 10);*/
 
         // draw the tsphs path
 

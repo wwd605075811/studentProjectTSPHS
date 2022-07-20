@@ -9,7 +9,7 @@ public class main {
         T1.initMap();
 
         Greedy_TSPHS g = new Greedy_TSPHS(T1);
-        g.newInit();
+        g.initAlgorithm();
         g.solveTSP();
         g.printTSPPath();
         System.out.println();
