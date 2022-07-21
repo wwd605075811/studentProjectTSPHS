@@ -1,0 +1,45 @@
+1. Greedy_TSPHS
+   why greedy algorithm? A: The fastest way to get a high-quality solution
+
+    1.1 Algorithmic Framework
+        a. use greedy algorithm to get a TSP solution "P"
+        b. Divide P into multiple trips by time limit [1]
+        c. Optimize each trip to meet the time constraints and meet the minimum time consumption
+        d. Combine trips into a tour
+
+    1.2 conclusion
+        After this algorithm, we can get a high quality TSPHS solution as a father.
+2. Hotel_TSPHS
+    why another algorithm? A: Genetic algorithms require at least two parents as the primary population.
+
+    After the greedy algorithm, we can get an optimal number of hotels |H|.
+    2.1 Algorithm Framework
+        a. Randomly generate 5 hotel sequences of |H| + 1. [3]
+        b. 5 sequences of |H| hotels are obtained by local segmentation. [2]
+        c. For each trip, insert the customer in its category until the time limit is reached.
+        d. The insertion order follows the dynamic programming algorithm [4] TODO
+        e. After 10 TSPHS solutions are obtained, 2 optimal legal solutions are screened out
+
+    2.2 conclusion
+        After this algorithm, we have completed the population initialization of the genetic algorithm.
+
+3.Crossover and Mutations
+    3.1 one-point crossover
+
+    3.2 three-operator crossover algorithm TODO
+
+    3.3 mutations TODO
+
+4. updates
+   TODO
+
+
+[1] Beasley JE. Route first-cluster second methods for vehicle routing. Omega 1983;11(4):403–8.
+[2] Christofides N, Mingozzi A, Toth P. The vehicle routing problem. In: Christo-
+fides N, Mingozzi A, Toth P, Sandi C, editors. Combinatorial optimization.
+Wiley; 1979. p. 315–38.
+[3] Yongliang, L. (2019). 元启发式算法求解一些旅行商扩展问题--《华中科技大学》2019年博士论文.
+[online] cdmd.cnki.com.cn.
+Available at: https://cdmd.cnki.com.cn/Article/CDMD-10487-1019618138.htm [Accessed 30 Jun. 2022].
+[4] N. C, A. M, P. T. The Vehicle Routing Problem. In: Christofides N, Mingozzi A, Toth P, Sandi
+C(eds) Combinatorial Optimization. Wiley, Chichester.

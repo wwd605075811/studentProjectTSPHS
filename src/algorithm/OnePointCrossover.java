@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class GAInitialization {
+public class OnePointCrossover {
     public int [][]A;
     public int [][][]AList ;  //children and parents list
     public double  fitness[];    //fitness list
@@ -13,7 +13,7 @@ public class GAInitialization {
     /**
      * initialization
      */
-    public GAInitialization(){
+    public OnePointCrossover(){
         int r;
         int flag=0;
         A =new int[3][5];

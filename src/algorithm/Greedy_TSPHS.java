@@ -15,6 +15,8 @@ public class Greedy_TSPHS {
     private int[] rowAble; // 0 means we have passed this customer
     private List<Integer> PATH; // the final path
     private double totalDistance = 0.0; // the cost of algorithm
+
+    private double TSPHSCost = 0.0;
     private TspMap tspMap;
     Trip trip;
     int customerIndex;
@@ -159,7 +161,6 @@ public class Greedy_TSPHS {
             trip.trip.add(PATH.get(this.customerIndex));
             cost = cost + tspMap.getDistanceCustomer()[this.customerIndex-1][this.customerIndex];
             tripIndex ++;
-
         }
 
         System.out.print("After insert customers: ");
@@ -192,6 +193,7 @@ public class Greedy_TSPHS {
                             System.out.print(trip.trip.get(i) + " ");
                         }
                         System.out.println("  the cost is: " + cost);
+                        this.TSPHSCost = this.TSPHSCost + cost;
                         return trip;
                     } else {
                         System.out.println("*****~~~~~~" + cost + distance);
@@ -221,6 +223,7 @@ public class Greedy_TSPHS {
                     System.out.print(trip.trip.get(i) + " ");
                 }
                 System.out.println("  the cost is: " + cost);
+                this.TSPHSCost = this.TSPHSCost + cost;
                 return trip;
             }
         }
@@ -243,6 +246,18 @@ public class Greedy_TSPHS {
         }
         tspMap.setTour(tour);
         System.out.println();
+    }
+
+    public void printTSPHSPath() {
+        System.out.println("The path of Greedy_TSPHS is:");
+        for (int i = 0; i < tour.size(); i++) {
+            for (int j = 0; j < tour.get(i).trip.size(); j++) {
+                System.out.print(tour.get(i).trip.get(j) + "--");
+            }
+            System.out.print("\b\b  ");
+        }
+        System.out.println();
+        System.out.println("The distance of Greedy_TSPHS is:" + this.TSPHSCost);
     }
     public List<Integer> getPATH() {
         return PATH;
