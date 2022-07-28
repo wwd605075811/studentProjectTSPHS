@@ -34,6 +34,9 @@ public class TspMap {
     private int Size;   // hotelSize + customerSize
     private List<Customer> initialCustomer; //Store the initial customer sequence read from the file
     private double [][] distanceCustomer; // distance between customers
+
+
+    private double [][] distanceHotel; // distance between hotels
     private double [][] distanceCustomer2Hotel; // distance from customer to hotel
     private double [] minDistanceC2H; // the min distance from each customer to hotel
     private int [] minDistanceIndexC2H; // the Index of minDistanceC2H
@@ -67,6 +70,7 @@ public class TspMap {
         this.dataPath = dataPath;
         this.Size = hotelSize + customerSize;
         this.distanceCustomer = new double[customerSize][customerSize];
+        this.distanceHotel = new double[hotelSize][hotelSize];
         this.distanceCustomer2Hotel = new double[customerSize][hotelSize];
         this.minDistanceC2H = new double[customerSize];
         this.minDistanceIndexC2H = new int[customerSize];
@@ -123,6 +127,15 @@ public class TspMap {
             }
         }
         distanceCustomer[customerSize - 1][customerSize - 1] = 0;
+        // calculate the distance matrix of hotels
+        for (int i = 0; i < hotelSize - 1; i++) {
+            distanceHotel[i][i] = 0; // 对角线为0
+            for (int j = i + 1; j < hotelSize; j++) {
+                distanceHotel[i][j] = calculateDistance(initialHotel.get(i),initialHotel.get(j));
+                distanceHotel[j][i] = distanceHotel[i][j];
+            }
+        }
+        distanceHotel[hotelSize - 1][hotelSize - 1] = 0;
         // calculate the distance matrix from customers to hotel
         for (int i = 0; i < customerSize; i++) {
             for (int j = 0; j < hotelSize; j++) {
@@ -175,6 +188,19 @@ public class TspMap {
     }
 
     /**
+     * calculate the distance between customer and hotel
+     * @param h1 hotel1
+     * @param h2 hotel2
+     * @return the distance
+     */
+    public double calculateDistance(Hotel h1, Hotel h2) {
+        double distance = 0.0;
+        distance = Math.sqrt(Math.abs((h1.getX() - h2.getX()) * (h1.getX() - h2.getX()) +
+                (h1.getY() - h2.getY()) * (h1.getY() - h2.getY())));
+        return distance;
+    }
+
+    /**
      * lots of getter and setter functions
      * @return useful data
      */
@@ -204,6 +230,9 @@ public class TspMap {
     }
     public double[][] getDistanceCustomer() {
         return distanceCustomer;
+    }
+    public double[][] getDistanceHotel() {
+        return distanceHotel;
     }
     public double[][] getTimeMatrix() {
         return timeMatrix;

@@ -1,4 +1,5 @@
 package algorithm;
+import model.Hotel;
 import model.Trip;
 import model.TspMap;
 import java.util.LinkedList;
@@ -33,7 +34,11 @@ public class Greedy_TSPHS {
         this.PATH = new LinkedList<Integer>();
         this.customerIndex = 0;
     }
-
+    public Greedy_TSPHS(int hotelSize, double[][] distanceHotel) {
+        this.customerSize = hotelSize;
+        this.distanceCustomer = distanceHotel;
+        this.PATH = new LinkedList<Integer>();
+    }
     /**
      * Initialize the two marker arrays required by the algorithm
      */

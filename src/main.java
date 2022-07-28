@@ -13,7 +13,12 @@ public class main {
         g.initAlgorithm();
         g.solveTSP();
         g.printTSPPath();
+
+
+
         System.out.println();
+
+
         g.solveTSPHS();
         g.printTSPHSPath();
         //System.out.println();
