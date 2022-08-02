@@ -1,6 +1,9 @@
 package algorithm;
 
+import model.Customer;
+import model.Hotel;
 import model.Trip;
+import model.TspMap;
 
 import java.util.*;
 
@@ -17,13 +20,18 @@ public class Hotel_TSPHS {
     private int setSize;    // Cmn, the number of combination of hotels
     private int hotelTripSize;  // From greedy algorithm
     private int hotelSize;    //
-    public Hotel_TSPHS (int hotelSize, double [][]hotelDistance, int hotelTripSize) {
+    private double T;
+    private TspMap tspMap;
+    private int fatherNumber = 10;
+    public Hotel_TSPHS (int hotelSize, double [][]hotelDistance, int hotelTripSize, TspMap TMap) {
         ga = new Greedy_TSPHS(hotelSize,hotelDistance);
         this.totalHotelPATH = new LinkedList<Integer>();
         this.setHotels = new LinkedList<Trip>();
         this.hotelTripSize = hotelTripSize;
         this.hotelSize = hotelSize;
         this.setSize = C(hotelSize,hotelTripSize);
+        this.T = TMap.getT() * 0.67;
+        this.tspMap = TMap;
     }
 
     public void solveHotelPath() {
@@ -37,6 +45,7 @@ public class Hotel_TSPHS {
         int [] output = new int[4];
         dfsCombination(totalHotelPATH,output,0,0);
         System.out.println();
+        selectBestHotels();
     }
 
     public void dfsCombination(List<Integer> totalHotelPath, int[] output, int index, int start){
@@ -73,6 +82,83 @@ public class Hotel_TSPHS {
 
     public void selectBestHotels() {
         // 从 setHotels 中挑选包含顾客数量最多的组合
+        int [] arrayHotels = new int[setSize];
+        /*System.out.print("the set is: ");
+        for (int i = 0; i < 4; i++) {
+
+            System.out.print(setHotels.get(0).trip.get(i) + " ");
+        }*/
+        System.out.println();
+        int cusInSetNumber = 0;
+
+        for (int i = 0; i < setHotels.size(); i++) {
+            for (int j = 0; j < tspMap.getInitialCustomer().size(); j++) {
+                if (judgeInSet(tspMap.getInitialCustomer().get(j), setHotels.get(i))) {
+                    cusInSetNumber ++;
+                } else {
+                    System.out.println("cus" + j + " out set" + i);
+                }
+            }
+            System.out.println("-------------set " + i + " -------finish");
+            System.out.println("the number of customers in set " + i +  " is: " + cusInSetNumber);
+            arrayHotels[i] = cusInSetNumber;
+            cusInSetNumber = 0;
+        }
+        // now, find the top n solutions
+        for (int i = 0; i < fatherNumber; i++) {
+            int index = findBestHotels(arrayHotels);
+            System.out.println("The best is: " + index + "  " + arrayHotels[index]);
+            arrayHotels[index] = -1;
+        }
+
+    }
+
+    public boolean judgeInSet(Customer cus1, Trip t1) {
+        int flag = 0;
+
+        for (int i = 0; i < t1.trip.size() - 1; i++) {
+            if (judgeInOval(cus1, tspMap.getInitialHotel().get(t1.trip.get(i)),tspMap.getInitialHotel().get(t1.trip.get(i + 1))))
+                flag ++;
+        }
+        if (judgeInOval(cus1, tspMap.getInitialHotel().get(t1.trip.get(0)),tspMap.getInitialHotel().get(t1.trip.get(t1.trip.size() - 1))))
+            flag ++;
+        if (flag == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    public boolean judgeInOval(Customer cus1, Hotel h1, Hotel h2) {
+        double x = cus1.getX();
+        double y = cus1.getY();
+        double x1 = h1.getX();
+        double y1 = h1.getY();
+        double x2 = h2.getX();
+        double y2 = h2.getY();
+        double distance1 = Math.sqrt(Math.abs((x - x1) * (x - x1) + (y - y1) * (y - y1)));
+        double distance2 = Math.sqrt(Math.abs((x - x2) * (x - x2) + (y - y2) * (y - y2)));
+        double distance = 0.0;
+        distance = distance1 + distance2;
+        //System.out.println("the distance is: " + distance);
+        if (distance <= this.T) {
+            return true;
+        }
+        return false;
+    }
+
+    public int findBestHotels(int []arr) {
+        int max = arr[0];
+        int maxIndex = 0;
+        for (int i = 0; i < arr.length ; i++) {
+            if (max<arr[i]){
+                max = arr[i];
+                maxIndex = i;
+            }
+        }
+        if (maxIndex == 0) {
+            System.out.println("maybe there are some mistakes");
+        }
+        return maxIndex;
     }
 
     public static int A(int n, int m) {
