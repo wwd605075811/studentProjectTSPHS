@@ -1,9 +1,6 @@
 package algorithm;
 
-import model.Customer;
-import model.Hotel;
-import model.Trip;
-import model.TspMap;
+import model.*;
 
 import java.util.*;
 
@@ -17,16 +14,18 @@ public class Hotel_TSPHS {
     Greedy_TSPHS ga;
     private List<Integer> totalHotelPATH;
     private List<Trip> setHotels;
+    private List<Trip> bestHotels;
     private int setSize;    // Cmn, the number of combination of hotels
-    private int hotelTripSize;  // From greedy algorithm
+    private int hotelTripSize;  // From greedy algorithm 4
     private int hotelSize;    //
     private double T;
     private TspMap tspMap;
-    private int fatherNumber = 10;
+    private int fatherNumber = 3;
     public Hotel_TSPHS (int hotelSize, double [][]hotelDistance, int hotelTripSize, TspMap TMap) {
         ga = new Greedy_TSPHS(hotelSize,hotelDistance);
         this.totalHotelPATH = new LinkedList<Integer>();
         this.setHotels = new LinkedList<Trip>();
+        this.bestHotels = new LinkedList<Trip>();
         this.hotelTripSize = hotelTripSize;
         this.hotelSize = hotelSize;
         this.setSize = C(hotelSize,hotelTripSize);
@@ -42,10 +41,10 @@ public class Hotel_TSPHS {
         ga.printTSPPath();
 
         System.out.println();
-        int [] output = new int[4];
+        int [] output = new int[hotelTripSize];
         dfsCombination(totalHotelPATH,output,0,0);
-        System.out.println();
         selectBestHotels();
+        insertCusInHotels();
     }
 
     public void dfsCombination(List<Integer> totalHotelPath, int[] output, int index, int start){
@@ -107,10 +106,106 @@ public class Hotel_TSPHS {
         // now, find the top n solutions
         for (int i = 0; i < fatherNumber; i++) {
             int index = findBestHotels(arrayHotels);
-            System.out.println("The best is: " + index + "  " + arrayHotels[index]);
+            //System.out.println("The best is: " + index + "  " + arrayHotels[index]);
             arrayHotels[index] = -1;
+            bestHotels.add(setHotels.get(index));
+        }
+        System.out.println("The best hotels are:");
+        for (int i = 0; i < bestHotels.size(); i++) {
+            System.out.print( i + 1 + ": ");
+            for (int j = 0; j < bestHotels.get(i).trip.size(); j++) {
+                System.out.print(bestHotels.get(i).trip.get(j) + " ");;
+            }
+            System.out.println();
+        }
+    }
+
+    //1. 对于所有顾客，计算4 * 2项权重值，按权重值划分区域
+    // a * 到重心的距离 - b * 到圆心的距离 = 权重值
+    //2. 将对应顾客划分到对应区域
+    //3.
+
+
+    public void insertCusInHotels() {
+        // 注意没有初始化，可能带来问题
+        double [][] cusWeight = new double[tspMap.getCustomerSize()][this.hotelTripSize];
+        for (int i = 0; i < tspMap.getCustomerSize(); i++) {
+            System.out.println("This is cus" + i);
+            for (int j = 0; j < this.hotelTripSize; j++) {
+                cusWeight[i][j] = customerWeight(tspMap.getInitialCustomer().get(i),bestHotels.get(0),j);
+            }
+        }
+        // 找出各个顾客的权重最大值，找到其分区
+        int [] cusRegion = new int[tspMap.getCustomerSize()];
+
+        for (int i = 0; i < cusWeight.length; i++) {
+            double max = cusWeight[i][0];
+            int maxIndex = 0;
+            for (int j = 0; j < cusWeight[i].length ; j++) {
+                if (max < cusWeight[i][j]){
+                    max = cusWeight[i][j];
+                    maxIndex = j;
+                }
+            }
+            cusRegion[i] = maxIndex;
+            maxIndex = 0;
         }
 
+    }
+
+    // 要考虑多边形的重心计算
+    public double customerWeight(Customer cus1, Trip t1, int index) {
+        int[] hotels = new int[t1.trip.size()];
+        int hotelsIndex = 0;
+        // 提取正确的顺序
+        for (int i = index; i < t1.trip.size(); i++) {
+            hotels[hotelsIndex] = t1.trip.get(i);
+            hotelsIndex ++;
+        }
+        for (int i = 0; i < index; i++) {
+            hotels[hotelsIndex] = t1.trip.get(i);
+            hotelsIndex ++;
+        }
+        System.out.print("This hotels order is :");
+        for (int i = 0; i < hotels.length; i++) {
+            System.out.print(hotels[i] + " ");
+        }
+        System.out.println();
+        // 计算相应的重心值
+        int []nowHotels = new int[2];
+        int []otherHotels = new int[t1.trip.size() - 1];
+        nowHotels[0] = hotels[0];
+        nowHotels[1] = hotels[1];
+        for (int i = 0; i < otherHotels.length; i++) {
+            otherHotels[i] = hotels[i + 1];
+        }
+        //当前酒店的重心坐标
+        double Nx = (tspMap.getInitialHotel().get(nowHotels[0]).getX() + tspMap.getInitialHotel().get(nowHotels[1]).getX()) / 2;
+        double Ny = (tspMap.getInitialHotel().get(nowHotels[0]).getY() + tspMap.getInitialHotel().get(nowHotels[1]).getY()) / 2;
+        //多边形面积
+        double area = 0.0;
+        //其他酒店的重心坐标Gx、Gy
+        double Gx = 0.0;
+        double Gy = 0.0;
+        for (int i = 1; i <= otherHotels.length; i++) {
+            double ix = tspMap.getInitialHotel().get(otherHotels[i % otherHotels.length]).getX();
+            double iy = tspMap.getInitialHotel().get(otherHotels[i % otherHotels.length]).getY();
+            double nextIx = tspMap.getInitialHotel().get(otherHotels[i - 1]).getX();
+            double nextIy = tspMap.getInitialHotel().get(otherHotels[i - 1]).getY();
+            double temp = (ix * nextIy - iy * nextIx) / 2.0;
+            area += temp;
+            Gx += temp * (ix + nextIx) / 3.0;
+            Gy += temp * (iy + nextIy) / 3.0;
+        }
+        Gx = Gx / area;
+        Gy = Gy / area;
+        System.out.println("Gx and Gy is: " + Gx + " " + Gy);
+        // 返回权值结果
+        double distanceNow, distanceOther;
+        distanceNow = calculateDistance(cus1.getX(),cus1.getY(),Nx,Ny);
+        distanceOther = calculateDistance(cus1.getX(), cus1.getY(), Gx, Gy);
+        double weight = distanceOther - 0.6 * distanceNow;
+        return weight;
     }
 
     public boolean judgeInSet(Customer cus1, Trip t1) {
@@ -145,7 +240,6 @@ public class Hotel_TSPHS {
         }
         return false;
     }
-
     public int findBestHotels(int []arr) {
         int max = arr[0];
         int maxIndex = 0;
@@ -193,5 +287,10 @@ public class Hotel_TSPHS {
         // 分母的排列数
         int denominator = A(m, m);
         return numerator / denominator;
+    }
+    public double calculateDistance(double x1, double y1, double x2, double y2) {
+        double distance = 0.0;
+        distance = Math.sqrt(Math.abs((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+        return distance;
     }
 }

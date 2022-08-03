@@ -1,26 +1,26 @@
 package model;
-public class Customer {
-    //重大问题！坐标应该是double类型的！
-    private int x;
-    private int y;
+
+public class Point {
+    private double x;
+    private double y;
     private String id;
-    public Customer(String id, int x, int y) {
+    public Point(String id, double x, double y) {
         this.id = id;
         this.x = x;
         this.y = y;
     }
-    public Customer() {
-        this.x = -1;
-        this.y = -1;
-        this.id = "-1";
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+        this.id = null;
     }
-    public int getX() {
+    public double getX() {
         return x;
     }
     public void setX(int x) {
         this.x = x;
     }
-    public int getY() {
+    public double getY() {
         return y;
     }
     public void setY(int y) {
