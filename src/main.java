@@ -5,7 +5,7 @@ import model.TspMap;
 public class main {
 
     public static void main(String[] args) {
-        TspMap T1 = new TspMap(8,15, "src/test.txt");
+        TspMap T1 = new TspMap(15,33, "src/att48.txt");
         T1.initMap();
 
         // use greedy algorithm to get one solution

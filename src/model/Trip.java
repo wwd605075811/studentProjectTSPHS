@@ -21,6 +21,13 @@ public class Trip {
         return this.trip.get(0);
     }
 
+    public void oneInsert(int customerIndex) {
+        int last = getLastHotel();
+        this.trip.remove(trip.size() - 1);
+        this.trip.add(customerIndex);
+        this.trip.add(last);
+    }
+
     /**
      * get the last hotel in this trip
      * @return the index of last hotel

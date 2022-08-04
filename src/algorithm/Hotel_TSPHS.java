@@ -44,7 +44,10 @@ public class Hotel_TSPHS {
         int [] output = new int[hotelTripSize];
         dfsCombination(totalHotelPATH,output,0,0);
         selectBestHotels();
-        insertCusInHotels();
+        insertCusInHotels(bestHotels.get(0));
+        System.out.println();
+        insertCusInHotels(bestHotels.get(1));
+        System.out.println();
     }
 
     public void dfsCombination(List<Integer> totalHotelPath, int[] output, int index, int start){
@@ -122,17 +125,18 @@ public class Hotel_TSPHS {
 
     //1. 对于所有顾客，计算4 * 2项权重值，按权重值划分区域
     // a * 到重心的距离 - b * 到圆心的距离 = 权重值
-    //2. 将对应顾客划分到对应区域
-    //3.
+    //2. 将对应顾客划分到对应区域，并排序
+    //3. 对于每一个区域，对顾客进行重要度排序
+    //4. 从第一区域开始依次在不违反最大限制的情况下插入顾客
 
 
-    public void insertCusInHotels() {
+    public void insertCusInHotels(Trip hotels) {
         // 注意没有初始化，可能带来问题
         double [][] cusWeight = new double[tspMap.getCustomerSize()][this.hotelTripSize];
         for (int i = 0; i < tspMap.getCustomerSize(); i++) {
-            System.out.println("This is cus" + i);
+            //System.out.println("This is cus" + i);
             for (int j = 0; j < this.hotelTripSize; j++) {
-                cusWeight[i][j] = customerWeight(tspMap.getInitialCustomer().get(i),bestHotels.get(0),j);
+                cusWeight[i][j] = customerWeight(tspMap.getInitialCustomer().get(i),hotels,j);
             }
         }
         // 找出各个顾客的权重最大值，找到其分区
@@ -147,12 +151,106 @@ public class Hotel_TSPHS {
                     maxIndex = j;
                 }
             }
+            //cusWeight[i][hotelTripSize] = max;
             cusRegion[i] = maxIndex;
             maxIndex = 0;
         }
+        // 打印所属区域
+        for (int i = 0; i < cusRegion.length; i++) {
+            System.out.print(cusRegion[i] + " ");
+        }
+        //实现区域排序
+        double [][] cusWeightTemp = new double[this.hotelTripSize][tspMap.getCustomerSize()];
+
+        for (int i = 0; i < cusWeightTemp.length; i++) {
+            double [] arr1 = new double[15];
+            for (int j = 0; j < 15; j++) {
+                arr1[j] = cusWeight[j][i];
+            }
+            cusWeightTemp[i] = arr1;
+        }
+        // 初始化索引值
+        int [][] cusWeightSortIndex = new int[this.hotelTripSize][tspMap.getCustomerSize()];
+        for (int i = 0; i < cusWeightSortIndex.length; i++) {
+            int index = 0;
+            for (int j = 0; j < cusWeightSortIndex[0].length; j++) {
+                cusWeightSortIndex[i][j] = index;
+                index ++;
+            }
+        }
+        // 进行排序
+        for (int i = 0; i < cusWeightSortIndex.length; i++) {
+            cusWeightSortIndex[i] = SortWithIndex(cusWeightTemp[i],cusWeightSortIndex[i]);
+        }
+        int [] customerFlag = new int[tspMap.getCustomerSize()];    //初始化为1
+        for (int i = 0; i < customerFlag.length; i++) {
+            customerFlag[i] = 1;
+        }
+
+        //--------------------------------now ready to insert------------------------------------------
+        for (int i = 0; i < hotels.trip.size(); i++) {
+            Trip thisArea = new Trip();
+            //对于第一个区域进行插入
+            int startHotelIndex = hotels.trip.get(i);
+            int endHotelIndex;
+            if (i == hotels.trip.size() - 1){
+                endHotelIndex = 0;
+            } else {
+                endHotelIndex = hotels.trip.get(i + 1);
+            }
+            thisArea.trip.add(startHotelIndex);
+            // check the cost
+            double cost = 0.0;
+            // 检查当前是否还有顾客
+            if (!existCustomer(customerFlag)) {
+                System.out.println("There are no more customers in this area!");
+                continue;
+            }
+            // start to insert customer in this area
+            cost = cost + tspMap.getDistanceCustomer2Hotel()[cusWeightSortIndex[i][0]][startHotelIndex] +
+                    tspMap.getDistanceCustomer2Hotel()[cusWeightSortIndex[i][0]][endHotelIndex];
+            if (cost >= tspMap.getT()) {
+                System.out.println("ERROR!!! can not insert one customer in this area!");
+                continue;
+            }
+            thisArea.trip.add(cusWeightSortIndex[i][0]);
+            customerFlag[0] = 0;
+            System.out.println("startHotel, endHotels and first customer are:" + startHotelIndex + "  " + endHotelIndex
+                    + "  " + cusWeightSortIndex[i][0] + " now, the cost is: " + cost);
+            // insert the customer one by one
+            // Stop when the maximum time limit is exceeded or there are no customers
+
+            /*while (cost <= tspMap.getT() && !existCustomer(customerFlag)) {
+                // 再插入顾客，对当前序列进行最短路径算法，判断是否超时
+                this.customerIndex ++;
+                //insert customer
+                trip.trip.add(PATH.get(this.customerIndex));
+                cost = cost + tspMap.getDistanceCustomer()[this.customerIndex-1][this.customerIndex];
+                tripIndex ++;
+            }
+
+            System.out.print("After insert customers: ");
+            for (int i = 0; i < trip.trip.size(); i++) {
+                System.out.print(trip.trip.get(i) + " ");
+            }
+            System.out.println("  the cost is: " + cost);*/
+        }
+
+
+        System.out.println();
+
 
     }
 
+    public boolean existCustomer(int [] customerFlag) {
+        for (int j = 0; j < customerFlag.length; j++) {
+            if (customerFlag[j] == 1) {
+                return true;
+            }
+        }
+        System.out.println("There are no more customers in this area!");
+        return false;
+    }
     // 要考虑多边形的重心计算
     public double customerWeight(Customer cus1, Trip t1, int index) {
         int[] hotels = new int[t1.trip.size()];
@@ -166,11 +264,11 @@ public class Hotel_TSPHS {
             hotels[hotelsIndex] = t1.trip.get(i);
             hotelsIndex ++;
         }
-        System.out.print("This hotels order is :");
+        /*System.out.print("This hotels order is :");
         for (int i = 0; i < hotels.length; i++) {
             System.out.print(hotels[i] + " ");
         }
-        System.out.println();
+        System.out.println();*/
         // 计算相应的重心值
         int []nowHotels = new int[2];
         int []otherHotels = new int[t1.trip.size() - 1];
@@ -199,7 +297,7 @@ public class Hotel_TSPHS {
         }
         Gx = Gx / area;
         Gy = Gy / area;
-        System.out.println("Gx and Gy is: " + Gx + " " + Gy);
+        //System.out.println("Gx and Gy is: " + Gx + " " + Gy);
         // 返回权值结果
         double distanceNow, distanceOther;
         distanceNow = calculateDistance(cus1.getX(),cus1.getY(),Nx,Ny);
@@ -293,4 +391,49 @@ public class Hotel_TSPHS {
         distance = Math.sqrt(Math.abs((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
         return distance;
     }
+
+    // 排序不重复
+    public static int[] sortAndOriginalIndex(double[] arr) {
+        int[] sortedIndex = new int[arr.length];
+        TreeMap<Float, Integer> map = new TreeMap<Float, Integer>();
+        for (int i = 0; i < arr.length; i++) {
+            map.put((float) arr[i], i); // 将arr的“值-索引”关系存入Map集合
+        }
+        // System.out.println(map); // 打印集合看看
+//  System.out.println("打印格式 -- Value:Index");
+        // 使用Entry方式打印Map中的元素
+        int n=0;
+        Iterator<Map.Entry<Float, Integer>> it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Float, Integer> me = it.next();
+//  System.out.print(me.getKey() + ":" + me.getValue() + "\t");
+            sortedIndex[n++] = me.getValue();
+        }
+        return sortedIndex;
+    }
+
+    // 排序可重复
+    public static int [] SortWithIndex(double[] data, int [] index)
+    {
+        int len = data.length;
+        double temp1[] = new double[len];
+        int temp2[] = new int[len];
+
+        for (int i = 0; i <len; i++) {
+            for (int j = i + 1; j < len; j++) {
+                if(data[i] < data[j])
+                {
+                    temp1[i] = data[i];
+                    data[i] = data[j];
+                    data[j] = temp1[i];
+                    temp2[i] = index[i];
+                    index[i] = index[j];
+                    index[j] = temp2[i];
+
+                }
+            }
+        }
+        return index;
+    }
+
 }
