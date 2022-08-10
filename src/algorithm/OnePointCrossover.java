@@ -9,7 +9,29 @@ public class OnePointCrossover {
     public int [][][]AList ;  //children and parents list
     public double  fitness[];    //fitness list
     public double MinCost;
+    private int N;
+    private int cityNum;
+    private double p_c_t;
+    private double p_m_t;
+    private int MAX_GEN;
+    private int bestLength;
+    private int[] bestTour;
+    private double bestFitness;
+    private double[] averageFitness;
+    private int[][] distance;
+    private String filename;
 
+    public OnePointCrossover(int n, int num, int g, double p_c, double p_m) {
+        this.N = n;
+        this.cityNum = num;
+        this.MAX_GEN = g;
+        this.p_c_t = p_c;
+        this.p_m_t = p_m;
+        bestTour = new int[cityNum];
+        averageFitness = new double[MAX_GEN];
+        bestFitness = 0.0;
+        distance = new int[cityNum][cityNum];
+    }
     /**
      * initialization
      */
@@ -412,7 +434,9 @@ public class OnePointCrossover {
         }
         return VarList;
     }
+    public void solve() {
 
+    }
     /**
      * Contar coding
      * @param s initial sort

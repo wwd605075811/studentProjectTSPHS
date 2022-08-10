@@ -5,6 +5,9 @@ import java.util.*;
  */
 public class Trip {
     public List<Integer> trip;
+    // 在Hotel_TSPHS 算法中开始使用起始终结两个属性
+    private int startHotel;
+    private int endHotel;
     public Trip() {
         this.trip = new LinkedList<Integer>();
     }

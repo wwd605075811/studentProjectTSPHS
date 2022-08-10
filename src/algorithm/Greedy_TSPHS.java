@@ -39,6 +39,7 @@ public class Greedy_TSPHS {
         this.distanceCustomer = distanceHotel;
         this.PATH = new LinkedList<Integer>();
     }
+
     /**
      * Initialize the two marker arrays required by the algorithm
      */
@@ -86,8 +87,8 @@ public class Greedy_TSPHS {
             i = j;
         }
         this.totalDistance = s;
-        System.out.println();
     }
+
 
     /**
      * Find the nearest customer
@@ -265,6 +266,11 @@ public class Greedy_TSPHS {
         System.out.println("The distance of Greedy_TSPHS is:" + this.TSPHSCost);
     }
     public List<Integer> getPATH() {
+        return PATH;
+    }
+    public List<Integer> getHotelAlgorithmPATH() {
+        // 求解一段区域的路径不用再返回到初始酒店
+        this.PATH.remove(this.PATH.size() - 1);
         return PATH;
     }
 }

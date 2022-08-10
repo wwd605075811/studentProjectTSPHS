@@ -189,6 +189,19 @@ public class TspMap {
 
     /**
      * calculate the distance between customer and hotel
+     * @param cus1 customer
+     * @param h1 hotel
+     * @return the distance
+     */
+    public double calculateDistance(Hotel h1, Customer cus1) {
+        double distance = 0.0;
+        distance = Math.sqrt(Math.abs((cus1.getX() - h1.getX()) * (cus1.getX() - h1.getX()) +
+                (cus1.getY() - h1.getY()) * (cus1.getY() - h1.getY())));
+        return distance;
+    }
+
+    /**
+     * calculate the distance between customer and hotel
      * @param h1 hotel1
      * @param h2 hotel2
      * @return the distance
@@ -198,6 +211,71 @@ public class TspMap {
         distance = Math.sqrt(Math.abs((h1.getX() - h2.getX()) * (h1.getX() - h2.getX()) +
                 (h1.getY() - h2.getY()) * (h1.getY() - h2.getY())));
         return distance;
+    }
+
+    /**
+     * calculate the distance between customer and hotel
+     * @param p1 point1
+     * @param p2 point2
+     * @return the distance
+     */
+    public double calculateDistance(Point p1, Point p2) {
+        double distance = 0.0;
+        distance = Math.sqrt(Math.abs((p1.getX() - p2.getX()) * (p1.getX() - p2.getX()) +
+                (p1.getY() - p2.getY()) * (p1.getY() - p2.getY())));
+        return distance;
+    }
+
+    public double calculateHotelTripCost(List<Integer> t1) {
+        double cost = 0.0;
+        if (t1.size() <= 2) {
+            System.out.println("ERROR! there isn't exist customer in this trip.");
+            return cost;
+        }
+        double costStart, costEnd, costMiddle = 0.0;
+        costStart = calculateDistance(this.getInitialCustomer().get(t1.get(1)),this.getInitialHotel().get(t1.get(0)));
+        costEnd = calculateDistance(this.getInitialCustomer().get(t1.get(t1.size() - 2)),
+                this.getInitialHotel().get(t1.get(t1.size() - 1)));
+
+        for (int i = 1; i < t1.size() - 2; i++) {
+            costMiddle = costMiddle + calculateDistance(this.getInitialCustomer().get(t1.get(i)),
+                    this.getInitialCustomer().get(t1.get(i + 1)));
+        }
+        return costStart + costEnd + costMiddle;
+    }
+
+    public double [][] tripDistanceMatrix(Trip t1) {
+        double [][] matrix = new double [t1.trip.size()][t1.trip.size()];
+        Trip t1Temp = new Trip();
+        if (t1.trip.size() <= 2) {
+            System.out.println("ERROR! there isn't exist customer in this trip.");
+            for (int i = 0; i < matrix.length; i++) {
+                for (int j = 0; j < matrix[0].length; j++) {
+                    matrix[i][j] = 0;
+                }
+            }
+            return matrix;
+        }
+
+        List<Point> thisTrip = new LinkedList<Point>();
+        Point startPoint = new Point(this.getInitialHotel().get(t1.trip.get(0)).getX(), this.getInitialHotel().get(t1.trip.get(0)).getY());
+        Point endPoint = new Point(this.getInitialHotel().get(t1.getLastHotel()).getX(), this.getInitialHotel().get(t1.getLastHotel()).getY());
+        thisTrip.add(startPoint);
+        for (int i = 1; i < t1.trip.size() - 1; i++) {
+            Point middlePoint = new Point(this.getInitialCustomer().get(t1.trip.get(i)).getX(), this.getInitialCustomer().get(t1.trip.get(i)).getY());
+            thisTrip.add(middlePoint);
+        }
+        thisTrip.add(endPoint);
+
+        for (int i = 0; i < thisTrip.size() - 1; i++) {
+            matrix[i][i] = 0; // 对角线为0
+            for (int j = i + 1; j < thisTrip.size(); j++) {
+                matrix[i][j] = calculateDistance(thisTrip.get(i), thisTrip.get(j));
+                matrix[j][i] = matrix[i][j];
+            }
+        }
+        matrix[thisTrip.size() - 1][thisTrip.size() - 1] = 0;
+        return matrix;
     }
 
     /**
