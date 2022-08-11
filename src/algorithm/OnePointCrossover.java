@@ -1,5 +1,6 @@
 package algorithm;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +22,8 @@ public class OnePointCrossover {
     private int[][] distance;
     private String filename;
 
+    private List<Integer> PATH;
+
     public OnePointCrossover(int n, int num, int g, double p_c, double p_m) {
         this.N = n;
         this.cityNum = num;
@@ -31,6 +34,7 @@ public class OnePointCrossover {
         averageFitness = new double[MAX_GEN];
         bestFitness = 0.0;
         distance = new int[cityNum][cityNum];
+        this.PATH = new LinkedList<Integer>();
     }
     /**
      * initialization
@@ -483,5 +487,11 @@ public class OnePointCrossover {
         }
 
     }
+    public List<Integer> getPATH() {
+        return PATH;
+    }
 
+    public void setPATH(List<Integer> PATH) {
+        this.PATH = PATH;
+    }
 }

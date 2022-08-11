@@ -278,6 +278,8 @@ public class TspMap {
         return matrix;
     }
 
+
+
     /**
      * lots of getter and setter functions
      * @return useful data

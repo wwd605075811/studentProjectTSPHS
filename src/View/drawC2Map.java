@@ -1,4 +1,5 @@
 package View;
+
 import model.Trip;
 import model.TspMap;
 import java.awt.*;
@@ -6,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.swing.*;
 
-public class drawMap extends JPanel {
+public class drawC2Map extends JPanel {
     public JFrame frame;
     public TspMap tspMap;
     List<Trip> tour;
@@ -16,20 +17,22 @@ public class drawMap extends JPanel {
         drawMap drawMap = new drawMap();
         drawMap.go();
     }*/
-    public drawMap(TspMap tspMap, List<Integer> path) {
+
+    public drawC2Map(TspMap tspMap, List<Trip> tour, List<Integer> path) {
         this.tspMap = tspMap;
         this.PATH = new LinkedList<Integer>();
         this.PATH = path;
+        this.tour = new LinkedList<Trip>();
+        this.tour = tour;
     }
-
 
     public void setMap() {
         frame = new JFrame();
-        drawMap drawMap = new drawMap(tspMap, PATH);
+        drawC2Map drawC2Map = new drawC2Map(tspMap,this.tour, this.PATH);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 800);
-        frame.add(drawMap);
-        frame.setTitle("TSPHS Map");
+        frame.add(drawC2Map);
+        frame.setTitle("Hotel Algorthm TSPHS Map");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -66,7 +69,7 @@ public class drawMap extends JPanel {
 
         // draw the tsphs path
 
-        for (int i = 0; i < tspMap.getTour().size(); i++) {
+        for (int i = 0; i < this.tour.size(); i++) {
 
             if (i % 2 ==0) {
                 g.setColor(Color.black);
@@ -75,17 +78,17 @@ public class drawMap extends JPanel {
             }
 
             // first, draw the customers
-            for (int j = 1; j < tspMap.getTour().get(i).trip.size() - 2; j++) {
-                int cusIndex1 = tspMap.getTour().get(i).trip.get(j);
-                int cusIndex2 = tspMap.getTour().get(i).trip.get(j + 1);
+            for (int j = 1; j < this.tour.get(i).trip.size() - 2; j++) {
+                int cusIndex1 = this.tour.get(i).trip.get(j);
+                int cusIndex2 = this.tour.get(i).trip.get(j + 1);
                 g.drawLine(tspMap.getInitialCustomer().get(cusIndex1).getX() * 10, tspMap.getInitialCustomer().get(cusIndex1).getY() * 10,
                         tspMap.getInitialCustomer().get(cusIndex2).getX() * 10, tspMap.getInitialCustomer().get(cusIndex2).getY() * 10);
             }
             // then, draw the line between customer and hotel
-            int startHotel = tspMap.getTour().get(i).trip.get(0);
-            int overHotel = tspMap.getTour().get(i).trip.get(tspMap.getTour().get(i).trip.size() - 1);
-            int startCus = tspMap.getTour().get(i).trip.get(1);
-            int overCus = tspMap.getTour().get(i).trip.get(tspMap.getTour().get(i).trip.size() - 2);
+            int startHotel = this.tour.get(i).trip.get(0);
+            int overHotel = this.tour.get(i).trip.get(this.tour.get(i).trip.size() - 1);
+            int startCus = this.tour.get(i).trip.get(1);
+            int overCus = this.tour.get(i).trip.get(tspMap.getTour().get(i).trip.size() - 2);
             g.drawLine(tspMap.getInitialHotel().get(startHotel).getX() * 10, tspMap.getInitialHotel().get(startHotel).getY() * 10,
                     tspMap.getInitialCustomer().get(startCus).getX() * 10, tspMap.getInitialCustomer().get(startCus).getY() * 10);
             g.drawLine(tspMap.getInitialHotel().get(overHotel).getX() * 10, tspMap.getInitialHotel().get(overHotel).getY() * 10,

@@ -20,8 +20,11 @@ public class Hotel_TSPHS {
     private int hotelSize;    //
     private double T;
     private TspMap tspMap;
-    List<Trip> tour;
-    List<List<Trip>> TSPHSTour;
+    private List<Trip> tour;
+    private List<List<Trip>> TSPHSTour;
+    private double [] tourCost;
+
+    private List<Integer> PATH;
 
     private int fatherNumber = 3;
     public Hotel_TSPHS (int hotelSize, double [][]hotelDistance, int hotelTripSize, TspMap TMap) {
@@ -36,6 +39,8 @@ public class Hotel_TSPHS {
         this.tspMap = TMap;
         this.tour = new LinkedList<Trip>();
         this.TSPHSTour = new LinkedList<List<Trip>>();
+        this.PATH = new LinkedList<Integer>();
+        tourCost = new double[fatherNumber];
     }
 
     public void solveHotelPath() {
@@ -52,10 +57,57 @@ public class Hotel_TSPHS {
         for (int i = 0; i < bestHotels.size(); i++) {
             System.out.println("--------------------------------");
             System.out.println("--------------------------------");
-            insertCusInHotels(bestHotels.get(i));
-            System.out.println();
+            this.TSPHSTour.add(insertCusInHotels(bestHotels.get(i),i));
         }
+        tourCost[0] = calculateTourCost(this.TSPHSTour.get(0));
+        printTSPHSPath(this.TSPHSTour.get(0), tourCost[0]);
 
+        System.out.println();
+    }
+
+    public double calculateTourCost (List<Trip> tour) {
+        double cost = 0.0;
+        for (int i = 0; i < tour.size(); i++) {
+            cost = cost + calculateTripCost(tour.get(i));
+        }
+        return cost;
+    }
+
+    public double calculateTripCost (Trip trip) {
+        double cost = 0.0;
+        cost = cost + tspMap.calculateDistance(tspMap.getInitialCustomer().get(trip.trip.get(1)), tspMap.getInitialHotel().get(trip.trip.get(0)));
+        cost = cost + tspMap.calculateDistance(tspMap.getInitialCustomer().get(trip.trip.get(trip.trip.size() - 2)), tspMap.getInitialHotel().get(trip.trip.get(trip.trip.size() - 1)));
+        for (int j = 1; j < trip.trip.size() - 2; j++) {
+            int cusIndex1 = trip.trip.get(j);
+            int cusIndex2 = trip.trip.get(j + 1);
+            cost = cost + tspMap.calculateDistance(tspMap.getInitialCustomer().get(cusIndex1), tspMap.getInitialCustomer().get(cusIndex2));
+        }
+        return cost;
+    }
+
+    public void setPATH(List<Trip> tour) {
+
+    }
+
+    public List<Integer> getPATH() {
+        return this.PATH;
+    }
+
+    public List<Trip> getBestTour() {
+        return this.TSPHSTour.get(0);
+    }
+    public void printTSPHSPath(List<Trip> tour, double cost) {
+        System.out.println("-------------------------------------");
+        System.out.println("The best path of Hotel_TSPHS is:");
+        for (int i = 0; i < tour.size(); i++) {
+            for (int j = 0; j < tour.get(i).trip.size(); j++) {
+                System.out.print(tour.get(i).trip.get(j) + "--");
+            }
+            System.out.print("\b\b  ");
+        }
+        System.out.println();
+        //TODO cost
+        System.out.println("The distance of Hotel_TSP is:" + cost);
     }
 
     public void dfsCombination(List<Integer> totalHotelPath, int[] output, int index, int start){
@@ -138,7 +190,10 @@ public class Hotel_TSPHS {
     //4. 从第一区域开始依次在不违反最大限制的情况下插入顾客
 
 
-    public void insertCusInHotels(Trip hotels) {
+    public List<Trip> insertCusInHotels(Trip hotels, int costIndex) {
+
+        List<Trip> thisTour = new LinkedList<>();
+
         // 注意没有初始化，可能带来问题
         double [][] cusWeight = new double[tspMap.getCustomerSize()][this.hotelTripSize];
         for (int i = 0; i < tspMap.getCustomerSize(); i++) {
@@ -207,6 +262,7 @@ public class Hotel_TSPHS {
 
             Trip thisArea = new Trip();
             List<Trip> areaTour = new LinkedList<Trip>();
+
             // 从最大往最小插入
             int insertCusIndex = 0;
             //对于第一个区域进行插入
@@ -224,7 +280,7 @@ public class Hotel_TSPHS {
             // 检查当前是否还有顾客
             if (!existCustomer(customerFlag)) {
                 System.out.println("There are no more customers in area " + i);
-                this.tour.add(thisArea);
+                thisTour.add(thisArea);
                 continue;
             }
             // start to insert customer in this area TODO 要筛选顾客
@@ -240,7 +296,7 @@ public class Hotel_TSPHS {
             }
             if (cost > tspMap.getT()) {
                 System.out.println("ERROR!!! can not insert one customer in area " + i);
-                this.tour.add(thisArea);
+                thisTour.add(thisArea);
                 continue;
             }
             thisArea.oneInsert(cusWeightSortIndex[i][insertCusIndex]);
@@ -304,7 +360,7 @@ public class Hotel_TSPHS {
                     System.out.print(areaTour.get(areaTour.size() - 1).trip.get(j) + " ");
                 }
                 System.out.println();
-                this.tour.add(areaTour.get(areaTour.size() - 1));
+                thisTour.add(areaTour.get(areaTour.size() - 1));
             }
         }
 
@@ -322,7 +378,8 @@ public class Hotel_TSPHS {
         } else {
 
         }
-        System.out.println();
+
+        return thisTour;
     }
 
     public void insertRemainingCus(int hotel) {
