@@ -1,9 +1,8 @@
 import View.drawMap;
-import algorithm.Hotel_TSPHS;
 import algorithm.OnePointCrossover;
 import model.TspMap;
 
-public class GAAlgorithm {
+public class GA_Algorithm {
     public static void main(String[] args) {
         TspMap T1 = new TspMap(8,15, "src/test.txt");
         T1.initMap();

@@ -5,7 +5,7 @@ import model.TspMap;
 public class GreedyAlgorithm {
 
     public static void main(String[] args) {
-        TspMap T1 = new TspMap(8,15, "src/test.txt");
+        TspMap T1 = new TspMap(35,101, "src/c101.txt");
         T1.initMap();
 
         // use greedy algorithm to get one solution

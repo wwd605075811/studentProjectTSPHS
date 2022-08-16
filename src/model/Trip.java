@@ -31,11 +31,26 @@ public class Trip {
         this.trip.add(last);
     }
 
+    public void lastRemove() {
+        int last = getLastHotel();
+        this.trip.remove(trip.size() - 1);
+        this.trip.remove(trip.size() - 1);
+        this.trip.add(last);
+    }
+
     /**
      * get the last hotel in this trip
      * @return the index of last hotel
      */
     public int getLastHotel() {
+        if (trip.size() == 0) {
+            System.out.println("trip size error!!!");
+            return 0;
+        }
+        return this.trip.get(trip.size() - 1);
+    }
+
+    public int getLast() {
         if (trip.size() == 0) {
             System.out.println("trip size error!!!");
             return 0;

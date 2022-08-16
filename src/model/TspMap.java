@@ -54,7 +54,7 @@ public class TspMap {
     //Assume the service time is 0, the vehicle speed is 10, and work 8h a day. The maximum distance for each trip is: (8 - n * 0) * speed = 80
     //eg. Assuming that 4~5 customers are delivered a day, the driving distance is 63, and the next customer who cannot reach the next 72 distance
     //will stay in the store, so set the vehicle speed to 10 and the service time to 0;
-    private static double speed = 10;
+    private static double speed = 30;
     private double T = speed * 8;   // time limit
     private static double serviceHours = 0;
     String dataPath;    // file path of test file
@@ -96,7 +96,6 @@ public class TspMap {
                         line = bfreader.readLine();
                         //System.out.println(line + "  index is:" + index + " ");
                         String[] arr = line.split("\\s+");
-                        //System.out.println();
                         Customer customer = new Customer(arr[1],Integer.parseInt(arr[2]),Integer.parseInt(arr[3]));
                         this.initialCustomer.add(customer);
                     }
@@ -278,7 +277,40 @@ public class TspMap {
         return matrix;
     }
 
+    public double [][] insertCusDistanceMatrix(int [] remainingCus, int [] succeedCus) {
+        double [][] matrix = new double[remainingCus.length][succeedCus.length];
 
+        for (int i = 0; i < remainingCus.length; i++) {
+            for (int j = 0; j < succeedCus.length; j++) {
+                matrix[i][j] = calculateDistance(getInitialCustomer().get(remainingCus[i]), getInitialCustomer().get(succeedCus[j]));
+            }
+        }
+        return matrix;
+    }
+
+    public int findMinInArray (double [] array) {
+        int minIndex = 0;//找出最小值的下标
+        for (int i = 0; i < array.length; i++) {
+
+            if(array[i] < array[minIndex]){
+                minIndex = i;
+            }
+        }
+
+        return minIndex;
+    }
+
+    public int findMaxInArray (double [] array) {
+        int maxIndex = 0;//找出最小值的下标
+        for (int i = 0; i < array.length; i++) {
+
+            if(array[i] > array[maxIndex]){
+                maxIndex = i;
+            }
+        }
+
+        return maxIndex;
+    }
 
     /**
      * lots of getter and setter functions

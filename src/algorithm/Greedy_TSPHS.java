@@ -16,11 +16,10 @@ public class Greedy_TSPHS {
     private int[] rowAble; // 0 means we have passed this customer
     private List<Integer> PATH; // the final path
     private double totalDistance = 0.0; // the cost of algorithm
-
     private double TSPHSCost = 0.0;
     private TspMap tspMap;
     Trip trip;
-    int customerIndex;
+    int customerIndex; // Used to calculate where to insert customers
     List<Trip> tour;
 
     /**
@@ -253,8 +252,140 @@ public class Greedy_TSPHS {
         tspMap.setTour(tour);
         System.out.println();
     }
+    /**
+     * use findTrip function to find a total tour, which is a TSPHS solution. This function is used for outside
+     */
+    public List<Trip> solveTSPHSOutside(List<Integer> tspPath) {
+        List<Trip> tourOutside = new LinkedList<Trip>();
+        int customerIndexOutside = 0;
+        if (customerIndexOutside == 0) {
+            Trip thisTrip = new Trip();
+            thisTrip = findTripOutside(tspMap.getMinDistanceIndexC2H()[tspPath.get(0)],customerIndexOutside, tspPath, customerIndexOutside);
+            customerIndexOutside = thisTrip.getLast();
+            thisTrip.lastRemove();
+            tourOutside.add(thisTrip);
+        }
+        while(customerIndexOutside < customerSize - 1) {
+            System.out.println("-----------------------------------------------");
+            customerIndexOutside ++;
+            Trip thisTrip = new Trip();
+            thisTrip = findTripOutside(tourOutside.get(tourOutside.size() - 1).getLastHotel(),customerIndexOutside, tspPath, customerIndexOutside);
+            customerIndexOutside = thisTrip.getLast();
+            thisTrip.lastRemove();
+            tourOutside.add(thisTrip);
+        }
+        return tourOutside;
+    }
 
+    /**
+     * Fill a trip with a greedy algorithm. This is a function for outside
+     * @param firstHotel start hotel
+     * If it is the first departure hotel, the hotel will be the closest to the departure customer of the TSP
+     * @param firstCustomer start customer
+     * @param tspPath outside tspPath
+     * trip = <cus1, cus2, ... , cusn>
+     * @param customerIndexOutside the insert index of outside TSP path
+     * @return one trip
+     */
+    public Trip findTripOutside(int firstHotel, int firstCustomer, List<Integer> tspPath, int customerIndexOutside) {
+        trip = new Trip();
+        // insert first hotel and customer
+        double cost = 0.0;
+        trip.trip.add(firstHotel);
+        trip.trip.add(tspPath.get(customerIndexOutside));
+
+        // check the cost
+        cost = cost + tspMap.getDistanceCustomer2Hotel()[tspPath.get(customerIndexOutside)][firstHotel];
+        if (cost >= tspMap.getT()) {
+            System.out.println("ERROR!!! can not find a hotel for this customer!");
+        }
+        System.out.println("first hotel and customer are:" + firstHotel + "  " + tspPath.get(customerIndexOutside) + " now, the cost is: " + cost);
+        // insert the customer one by one
+        // Stop when the maximum time limit is exceeded or there are no customers
+        int tripIndex = 1;
+        while (cost <= tspMap.getT() && customerIndexOutside < customerSize - 1) {
+            customerIndexOutside ++;
+            //insert customer
+            trip.trip.add(tspPath.get(customerIndexOutside));
+            cost = cost + tspMap.getDistanceCustomer()[customerIndexOutside-1][customerIndexOutside];
+            tripIndex ++;
+        }
+
+        System.out.print("After insert customers: ");
+        for (int i = 0; i < trip.trip.size(); i++) {
+            System.out.print(trip.trip.get(i) + " ");
+        }
+        System.out.println("  the cost is: " + cost);
+
+        // Find a rest hotel for the day's trip
+        while (customerIndexOutside != 0) {
+            // When the last customer is inserted into the sequence, there are two cases:
+            // No timeout after joining (1. Timeout when returning to the hotel; 2. No timeout when returning to the hotel)
+            // Timeout after joining, follow the normal process
+            if (customerIndexOutside == customerSize - 1) {
+                System.out.println("time for last customer!");
+                if (cost >= tspMap.getT()) { // time out
+                    break;
+                } else { // Not timed out
+                    // 1. Find the initial hotel
+                    // 2. Join the initial hotel to determine whether the distance is overtime
+                    int initialHotel = tspMap.getMinDistanceIndexC2H()[0];
+                    double distance = tspMap.getDistanceCustomer2Hotel()[customerIndexOutside][tspMap.getMinDistanceIndexC2H()[0]];
+                    if (cost + distance < tspMap.getT()) {
+                        //System.out.println("*****" + cost + distance);
+                        trip.trip.add(initialHotel);
+                        cost = cost + distance;
+
+                        System.out.print("After insert hotel: ");
+                        for (int i = 0; i < trip.trip.size(); i++) {
+                            System.out.print(trip.trip.get(i) + " ");
+                        }
+                        System.out.println("  the cost is: " + cost);
+                        // end cost
+                        trip.trip.add(customerIndexOutside);
+                        return trip;
+                    } else {
+                        System.out.println("*****~~~~~~" + cost + distance);
+                    }
+                }
+            }
+
+            trip.trip.remove(tripIndex);
+            cost = cost - tspMap.getDistanceCustomer()[customerIndexOutside-1][customerIndexOutside];
+            tripIndex --;
+            customerIndexOutside --;
+
+            System.out.print("After delete customer: ");
+            for (int i = 0; i < trip.trip.size(); i++) {
+                System.out.print(trip.trip.get(i) + " ");
+            }
+            System.out.println("  the cost is: " + cost + "  extra distance: " + tspMap.getMinDistanceC2H()[tspPath.get(customerIndexOutside)]);
+
+            if (cost + tspMap.getMinDistanceC2H()[tspPath.get(customerIndexOutside)] <= tspMap.getT()) {
+                // over
+                trip.trip.add(tspMap.getMinDistanceIndexC2H()[tspPath.get(customerIndexOutside)]);
+                cost = cost + tspMap.getMinDistanceC2H()[tspPath.get(customerIndexOutside)];
+                tripIndex ++;
+
+                System.out.print("After insert hotel: ");
+                for (int i = 0; i < trip.trip.size(); i++) {
+                    System.out.print(trip.trip.get(i) + " ");
+                }
+                System.out.println("  the cost is: " + cost);
+                // end cost
+                trip.trip.add(customerIndexOutside);
+                return trip;
+            }
+        }
+        System.out.println("ERROR!!! There is no suitable hotel for this trip!");
+        return null;
+    }
+
+    /**
+     * print TSPHS path
+     */
     public void printTSPHSPath() {
+        System.out.println("The number of trip is: " + (tour.size() + 4));
         System.out.println("The path of Greedy_TSPHS is:");
         for (int i = 0; i < tour.size(); i++) {
             for (int j = 0; j < tour.get(i).trip.size(); j++) {
@@ -273,59 +404,10 @@ public class Greedy_TSPHS {
         this.PATH.remove(this.PATH.size() - 1);
         return PATH;
     }
+    public void setPATH(List<Integer> PATH) {
+        this.PATH = PATH;
+    }
+    public List<Trip> getTour() {
+        return tour;
+    }
 }
-
-// another way to read data from file
-/*    public void init(String filename) throws IOException {
-        // 读取数据
-        int[] x;
-        int[] y;
-        String strbuff;
-        BufferedReader data = new BufferedReader(new InputStreamReader(
-                new FileInputStream(filename)));
-        distance = new double[cityNum][cityNum];
-        x = new int[cityNum];
-        y = new int[cityNum];
-        //过滤头几行无用的说明
-        while ((strbuff = data.readLine())!=null) {
-            if (!Character.isAlphabetic(strbuff.charAt(0)))
-                break;
-        }
-        String[] tmp = strbuff.split(" ");
-        x[0] = Integer.valueOf(tmp[1]);// x坐标
-        y[0] = Integer.valueOf(tmp[2]);// y坐标
-
-        for (int i = 1; i < cityNum; i++) {
-            // 读取一行数据，数据格式1 6734 1453
-            strbuff = data.readLine();
-            // 字符分割
-            String[] strcol = strbuff.split(" ");
-            x[i] = Integer.valueOf(strcol[1]);// x坐标
-            y[i] = Integer.valueOf(strcol[2]);// y坐标
-        }
-        data.close();
-
-        // 计算距离矩阵
-        // ，针对具体问题，距离计算方法也不一样，此处用的是att48作为案例，它有48个城市，距离计算方法为伪欧氏距离，最优值为10628
-        for (int i = 0; i < cityNum - 1; i++) {
-            distance[i][i] = 0; // 对角线为0
-            for (int j = i + 1; j < cityNum; j++) {
-                distance[i][j] = EUC_2D_dist(x[i] , x[j] ,y[i] , y[j]);
-                distance[j][i] = distance[i][j];
-            }
-        }
-
-        distance[cityNum - 1][cityNum - 1] = 0;
-
-        colable = new int[cityNum];
-        colable[0] = 0;
-        for (int i = 1; i < cityNum; i++) {
-            colable[i] = 1;
-        }
-
-        row = new int[cityNum];
-        for (int i = 0; i < cityNum; i++) {
-            row[i] = 1;
-        }
-
-    }*/
